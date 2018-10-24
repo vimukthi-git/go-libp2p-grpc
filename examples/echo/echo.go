@@ -152,6 +152,11 @@ func main() {
 	// Register our echoer GRPC service.
 	echosvc.RegisterEchoServiceServer(grpcProto.GetGRPCServer(), &Echoer{PeerID: ha.ID()})
 
+	// start accepting the connections
+	go func() {
+		log.Fatalln(grpcProto.Serve())
+	}()
+
 	if *target == "" {
 		log.Println("listening for connections")
 		select {} // hang forever
