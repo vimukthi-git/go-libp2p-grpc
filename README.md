@@ -1,4 +1,4 @@
-_NOTE_ that this is a fork of the original repository: https://github.com/paralin/go-libp2p-grpc
+_NOTE_ that this is a fork of the original repository: https://github.com/paralin/go-libp2p-grpc .
 
 [![Build Status](https://travis-ci.com/centrifuge/go-libp2p-grpc.svg?branch=master)](https://travis-ci.com/centrifuge/go-libp2p-grpc)
 
