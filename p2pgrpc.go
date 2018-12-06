@@ -2,6 +2,8 @@ package p2pgrpc
 
 import (
 	"context"
+	"fmt"
+
 	// "net"
 
 	host "github.com/libp2p/go-libp2p-host"
@@ -15,22 +17,27 @@ const Protocol protocol.ID = "/grpc/0.0.1"
 
 // GRPCProtocol is the GRPC-transported protocol handler.
 type GRPCProtocol struct {
-	ctx        context.Context
-	host       host.Host
-	grpcServer *grpc.Server
-	streamCh   chan inet.Stream
+	ctx            context.Context
+	host           host.Host
+	streamProtocol protocol.ID
+	grpcServer     *grpc.Server
+	streamCh       chan inet.Stream
 }
 
 // NewGRPCProtocol attaches the GRPC protocol to a host.
-func NewGRPCProtocol(ctx context.Context, host host.Host) *GRPCProtocol {
+func NewGRPCProtocol(ctx context.Context, host host.Host, streamSuffix string) *GRPCProtocol {
 	grpcServer := grpc.NewServer()
+
 	grpcProtocol := &GRPCProtocol{
-		ctx:        ctx,
-		host:       host,
-		grpcServer: grpcServer,
-		streamCh:   make(chan inet.Stream),
+		ctx:            ctx,
+		host:           host,
+		streamProtocol: formProtocol(streamSuffix),
+		grpcServer:     grpcServer,
+		streamCh:       make(chan inet.Stream),
 	}
-	host.SetStreamHandler(Protocol, grpcProtocol.HandleStream)
+
+	host.SetStreamHandler(grpcProtocol.streamProtocol, grpcProtocol.HandleStream)
+
 	return grpcProtocol
 }
 
@@ -52,4 +59,13 @@ func (p *GRPCProtocol) HandleStream(stream inet.Stream) {
 		return
 	case p.streamCh <- stream:
 	}
+}
+
+// Appends suffix to grpc Protocol
+func formProtocol(suffix string) protocol.ID {
+	useProtocol := Protocol
+	if suffix != "" {
+		useProtocol = protocol.ID(fmt.Sprintf("%s/%s", useProtocol, suffix))
+	}
+	return useProtocol
 }
