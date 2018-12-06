@@ -1,9 +1,10 @@
 package p2pgrpc
 
 import (
+	"net"
+
 	inet "github.com/libp2p/go-libp2p-net"
 	manet "github.com/multiformats/go-multiaddr-net"
-	"net"
 )
 
 // streamConn represents a net.Conn wrapped to be compatible with net.conn

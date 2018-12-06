@@ -5,7 +5,7 @@ import (
 	"net"
 	"time"
 
-	peer "github.com/libp2p/go-libp2p-peer"
+	"github.com/libp2p/go-libp2p-peer"
 	ps "github.com/libp2p/go-libp2p-peerstore"
 	"github.com/pkg/errors"
 	"google.golang.org/grpc"
@@ -30,7 +30,7 @@ func (p *GRPCProtocol) GetDialOption(ctx context.Context) grpc.DialOption {
 			return nil, err
 		}
 
-		stream, err := p.host.NewStream(ctx, id, Protocol)
+		stream, err := p.host.NewStream(ctx, id, p.streamProtocol)
 		if err != nil {
 			return nil, err
 		}

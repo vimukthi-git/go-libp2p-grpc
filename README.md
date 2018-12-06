@@ -1,8 +1,9 @@
+_NOTE_ that this is a fork of the original repository: https://github.com/paralin/go-libp2p-grpc
+
+[![Build Status](https://travis-ci.com/centrifuge/go-libp2p-grpc.svg?branch=master)](https://travis-ci.com/centrifuge/go-libp2p-grpc)
+
 go-libp2p-grpc
 ===================
-
-[![](https://img.shields.io/badge/project-IPFS-blue.svg?style=flat-square)](http://libp2p.io/)
-[![](https://img.shields.io/badge/freenode-%23ipfs-blue.svg?style=flat-square)](http://webchat.freenode.net/?channels=%23ipfs)
 
 > A libp2p transport for GRPC.
 
@@ -15,14 +16,14 @@ go-libp2p-grpc
 ## Install
 
 ```sh
-go get github.com/paralin/go-libp2p-grpc
+go get github.com/centrifuge/go-libp2p-grpc
 ```
 
 ## Usage
 
 ### API
 
-[![GoDoc](https://godoc.org/github.com/paralin/go-libp2p-grpc?status.svg)](https://godoc.org/github.com/paralin/go-libp2p-grpc)
+[![GoDoc](https://godoc.org/github.com/centrifuge/go-libp2p-grpc?status.svg)](https://godoc.org/github.com/centrifuge/go-libp2p-grpc)
 
 ### Examples 
 

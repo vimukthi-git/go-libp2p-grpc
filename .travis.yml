@@ -1,0 +1,29 @@
+language: go
+go:
+  - 1.11.x
+
+# Maybe this helps with building branches in a fork
+go_import_path: github.com/centrifuge/go-libp2p-grpc
+
+env:
+  matrix:
+    - DEPCACHEDIR=/tmp/depcache
+
+checkout:
+  post:
+    git pull --ff-only origin "refs/pull/${CI_PULL_REQUEST//*pull\//}/merge"
+
+cache:
+  directories:
+    - ~/bin/
+    - /tmp/depcache
+
+install:
+  - go get -u github.com/golang/dep/...
+  - dep ensure
+
+jobs:
+  include:
+    - stage: test
+      script:
+        - go test ./... -v
