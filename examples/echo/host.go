@@ -1,4 +1,4 @@
-package p2pgrpc
+package main
 
 import (
 	"context"

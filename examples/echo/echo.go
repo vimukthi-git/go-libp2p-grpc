@@ -53,7 +53,7 @@ func main() {
 	}
 
 	// Make a host that listens on the given multiaddress
-	ha, err := p2pgrpc.MakeBasicHost(*listenF, *secio, *seed)
+	ha, err := MakeBasicHost(*listenF, *secio, *seed)
 	if err != nil {
 		log.Fatal(err)
 	}
