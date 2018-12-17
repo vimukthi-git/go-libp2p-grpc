@@ -59,7 +59,7 @@ func main() {
 	}
 
 	// Set the grpc protocol handler on it
-	grpcProto := p2pgrpc.NewGRPCProtocol(context.Background(), ha, "")
+	grpcProto := p2pgrpc.NewGRPCProtocol(context.Background(), ha)
 
 	// Register our echoer GRPC service.
 	echosvc.RegisterEchoServiceServer(grpcProto.GetGRPCServer(), &Echoer{PeerID: ha.ID()})
@@ -104,7 +104,7 @@ func main() {
 
 	// make a new stream from host B to host A
 	log.Println("dialing via grpc")
-	grpcConn, err := grpcProto.Dial(context.Background(), peerid, grpc.WithInsecure(), grpc.WithBlock())
+	grpcConn, err := grpcProto.Dial(context.Background(), peerid, "", grpc.WithInsecure(), grpc.WithBlock())
 	if err != nil {
 		log.Fatalln(err)
 	}
