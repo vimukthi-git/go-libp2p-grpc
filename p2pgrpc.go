@@ -19,26 +19,29 @@ const Protocol protocol.ID = "/grpc/0.0.1"
 type GRPCProtocol struct {
 	ctx            context.Context
 	host           host.Host
-	streamProtocol protocol.ID
 	grpcServer     *grpc.Server
-	streamCh       chan inet.Stream
+	streamChs      map[protocol.ID]chan inet.Stream
 }
 
 // NewGRPCProtocol attaches the GRPC protocol to a host.
-func NewGRPCProtocol(ctx context.Context, host host.Host, streamSuffix string) *GRPCProtocol {
+func NewGRPCProtocol(ctx context.Context, host host.Host) *GRPCProtocol {
 	grpcServer := grpc.NewServer()
 
 	grpcProtocol := &GRPCProtocol{
 		ctx:            ctx,
 		host:           host,
-		streamProtocol: formProtocol(streamSuffix),
 		grpcServer:     grpcServer,
-		streamCh:       make(chan inet.Stream),
+		streamChs:      make(map[protocol.ID]chan inet.Stream),
 	}
 
-	host.SetStreamHandler(grpcProtocol.streamProtocol, grpcProtocol.HandleStream)
-
 	return grpcProtocol
+}
+
+// RegisterProtocol registers a protocol to be handled by the grpc server instance
+func (p *GRPCProtocol) RegisterProtocolSuffix(suf string) {
+	protoID := formProtocol(suf)
+	p.streamChs[protoID] = make(chan inet.Stream)
+	p.host.SetStreamHandler(protoID, p.HandleStream)
 }
 
 // GetGRPCServer returns the grpc server.
@@ -57,7 +60,7 @@ func (p *GRPCProtocol) HandleStream(stream inet.Stream) {
 	select {
 	case <-p.ctx.Done():
 		return
-	case p.streamCh <- stream:
+	case p.streamChs[stream.Protocol()] <- stream:
 	}
 }
 

@@ -13,7 +13,7 @@ import (
 
 // GetDialOption returns the WithDialer option to dial via libp2p.
 // note: ctx should be the root context.
-func (p *GRPCProtocol) GetDialOption(ctx context.Context) grpc.DialOption {
+func (p *GRPCProtocol) GetDialOption(ctx context.Context, protocolSuffix string) grpc.DialOption {
 	return grpc.WithDialer(func(peerIdStr string, timeout time.Duration) (net.Conn, error) {
 		subCtx, subCtxCancel := context.WithTimeout(ctx, timeout)
 		defer subCtxCancel()
@@ -30,7 +30,7 @@ func (p *GRPCProtocol) GetDialOption(ctx context.Context) grpc.DialOption {
 			return nil, err
 		}
 
-		stream, err := p.host.NewStream(ctx, id, p.streamProtocol)
+		stream, err := p.host.NewStream(ctx, id, formProtocol(protocolSuffix))
 		if err != nil {
 			return nil, err
 		}
@@ -44,8 +44,9 @@ func (p *GRPCProtocol) GetDialOption(ctx context.Context) grpc.DialOption {
 func (p *GRPCProtocol) Dial(
 	ctx context.Context,
 	peerID peer.ID,
+	protocolSuffix string,
 	dialOpts ...grpc.DialOption,
 ) (*grpc.ClientConn, error) {
-	dialOpsPrepended := append([]grpc.DialOption{p.GetDialOption(ctx)}, dialOpts...)
+	dialOpsPrepended := append([]grpc.DialOption{p.GetDialOption(ctx, protocolSuffix)}, dialOpts...)
 	return grpc.DialContext(ctx, peerID.Pretty(), dialOpsPrepended...)
 }

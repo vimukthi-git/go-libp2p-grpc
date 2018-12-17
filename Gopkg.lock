@@ -806,6 +806,7 @@
     "github.com/whyrusleeping/go-logging",
     "golang.org/x/net/context",
     "google.golang.org/grpc",
+    "google.golang.org/grpc/connectivity",
   ]
   solver-name = "gps-cdcl"
   solver-version = 1

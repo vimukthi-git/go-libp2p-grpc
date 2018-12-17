@@ -40,15 +40,17 @@ func TestNewGRPCProtocolDefault(t *testing.T) {
 	assert.Nil(t, err)
 
 	ctx, cancel := context.WithCancel(context.Background())
-	grpcProto := NewGRPCProtocol(ctx, h, "")
-	assert.Equal(t, Protocol, grpcProto.streamProtocol)
+	grpcProto := NewGRPCProtocol(ctx, h)
+	grpcProto.RegisterProtocolSuffix("")
+	_, ok := grpcProto.streamChs[Protocol]
+	assert.True(t, ok)
 	go func() {
 		err = grpcProto.Serve()
 	}()
 	time.Sleep(1 * time.Second)
 	assert.Nil(t, err)
 
-	conn, err := grpcProto.Dial(ctx, h.ID(), grpc.WithInsecure())
+	conn, err := grpcProto.Dial(ctx, h.ID(), "", grpc.WithInsecure())
 	assert.Nil(t, err)
 	assert.Equal(t, connectivity.Idle, conn.GetState())
 	cancel()
@@ -60,18 +62,50 @@ func TestNewGRPCProtocolCustom(t *testing.T) {
 
 	ctx, cancel := context.WithCancel(context.Background())
 	customSuffix := "0x123456789"
-	grpcProto := NewGRPCProtocol(ctx, h, customSuffix)
+	grpcProto := NewGRPCProtocol(ctx, h)
+	grpcProto.RegisterProtocolSuffix(customSuffix)
 	expectedProtocol := protocol.ID(fmt.Sprintf("%s/%s", Protocol, customSuffix))
-	assert.Equal(t, expectedProtocol, grpcProto.streamProtocol)
+	_, ok := grpcProto.streamChs[expectedProtocol]
+	assert.True(t, ok)
 	go func() {
 		err = grpcProto.Serve()
 	}()
 	time.Sleep(1 * time.Second)
 	assert.Nil(t, err)
 
-	conn, err := grpcProto.Dial(ctx, h.ID(), grpc.WithInsecure())
+	conn, err := grpcProto.Dial(ctx, h.ID(), customSuffix, grpc.WithInsecure())
 	assert.Nil(t, err)
 	assert.Equal(t, connectivity.Idle, conn.GetState())
+	cancel()
+}
+
+func TestNewGRPCProtocolManyCustom(t *testing.T) {
+	h, err := makeBasicHost(38001, true, 0)
+	assert.Nil(t, err)
+
+	ctx, cancel := context.WithCancel(context.Background())
+	customSuffix1 := "0x123456781"
+	customSuffix2 := "0x123456782"
+	customSuffix3 := "0x123456783"
+	grpcProto := NewGRPCProtocol(ctx, h)
+	grpcProto.RegisterProtocolSuffix(customSuffix1)
+	grpcProto.RegisterProtocolSuffix(customSuffix2)
+	grpcProto.RegisterProtocolSuffix(customSuffix3)
+	expectedProtocol := protocol.ID(fmt.Sprintf("%s/%s", Protocol, customSuffix1))
+	_, ok := grpcProto.streamChs[expectedProtocol]
+	assert.True(t, ok)
+	go func() {
+		err = grpcProto.Serve()
+	}()
+	time.Sleep(1 * time.Second)
+	assert.Nil(t, err)
+
+	conn, err := grpcProto.Dial(ctx, h.ID(), customSuffix1, grpc.WithInsecure())
+	assert.Nil(t, err)
+	conn2, err := grpcProto.Dial(ctx, h.ID(), customSuffix2, grpc.WithInsecure())
+	assert.Nil(t, err)
+	assert.Equal(t, connectivity.Idle, conn.GetState())
+	assert.Equal(t, connectivity.Idle, conn2.GetState())
 	cancel()
 }
 
